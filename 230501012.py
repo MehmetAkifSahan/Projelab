@@ -1,224 +1,102 @@
-﻿import random
+﻿class Book:
+    def __init__(self, name, author, year):
+        self.name = name
+        self.author = author
+        self.year = year
 
-Adam_Asmaca_Aşamalar = [
-r"""
-  +---+
-  |   |
-      |
-      |
-      |
-      |
-=========""",
-r"""
-  +---+
-  |   |
-  O   |
-      |
-      |
-      |
-=========""",
-r"""
-  +---+
-  |   |
-  O   |
-  |   |
-      |
-      |
-=========""",
-r"""
-  +---+
-  |   |
-  O   |
- /|   |
-      |
-      |
-=========""",
-r"""
-  +---+
-  |   |
-  O   |
- /|\  |
-      |
-      |
-=========""",
-r"""
-  +---+
-  |   |
-  O   |
- /|\  |
- /    |
-      |
-=========""",
-r"""
-  +---+
-  |   |
-  O   |
- /|\  |
- / \  |
-      |
-========="""
-]
+    def __str__(self):
+        return f"Kitap Adı: {self.name}, Yazar: {self.author}, Yayın Yılı: {self.year}"
 
-TOLERANCE = 1e-6
 
-class Kelimeler:
-    Kategoriler = {
-        "Meyveler": ["elma", "armut", "muz", "çilek", "portakal", "kiraz", "şeftali"],
-        "Hayvanlar": ["aslan", "kaplumbağa", "kartal", "köpek", "kedi", "tavşan", "kapibara"],
-        "Teknoloji": ["bilgisayar", "telefon", "tablet", "monitör", "klavye", "sunucu"]
-    }
-
+class Library:
     def __init__(self):
-        self.Kategoriler, self.word = self.Rastgele_kelime_secimi()
+        self.books = []
 
-    def Rastgele_kelime_secimi(self):
-        cat = random.choice(list(self.Kategoriler.keys()))
-        word = random.choice(self.Kategoriler[cat])
-        return cat, word.lower()
+    def add_book(self, name, author, year):
+        book = Book(name, author, year)
+        self.books.append(book)
+        print("Kitap başarıyla eklendi.")
 
-    def mask(self, guessed): #rastgele seçilen kelimenin saklanması
-        return "".join(ch if ch in guessed else "_" for ch in self.word)
+    def remove_book(self, name):
+        for book in self.books:
+            if book.name.lower() == name.lower():
+                self.books.remove(book)
+                print("Kitap başarıyla silindi.")
+                return
+        print("Kitap bulunamadı.")
+
+    def search_by_name(self, name):
+        found = False
+        for book in self.books:
+            if name.lower() in book.name.lower():
+                print(book)
+                found = True
+        if not found:
+            print("Aranan isimde kitap bulunamadı.")
+
+    def search_by_author(self, author):
+        found = False
+        for book in self.books:
+            if author.lower() in book.author.lower():
+                print(book)
+                found = True
+        if not found:
+            print("Bu yazara ait kitap bulunamadı.")
+
+    def list_books(self):
+        if not self.books:
+            print("Kütüphanede hiç kitap yok.")
+            return
+        print("\nKütüphanedeki Kitaplar:")
+        for book in self.books:
+            print(book)
 
 
-class Hesap_Makinesi:
-    def __init__(self):
-        self.ops_used = set()
-        self.allowed_ops = {'+': 'Toplama', '-': 'Çıkarma', '*': 'Çarpma', '/': 'Bölme'}
+def menu():
+    print("\n--- KÜTÜPHANE YÖNETİM SİSTEMİ ---")
+    print("1. Kitap Ekle")
+    print("2. Kitap Sil")
+    print("3. Kitap Ara (İsme Göre)")
+    print("4. Kitap Ara (Yazara Göre)")
+    print("5. Tüm Kitapları Listele")
+    print("6. Çıkış")
 
-    def perform(self):
-        remaining = [op for op in self.allowed_ops if op not in self.ops_used]
-        if not remaining:
-            print("Tüm işlemler kullanıldı.")
-            return False, 0
 
-        print("Kullanılabilir işlemler:")
-        for op in remaining:
-            print(f" {op} => {self.allowed_ops[op]}")
+def main():
+    library = Library()
 
-        op = input("Bir işlem seç (+, -, *, /) veya 'q' ile çık: ").strip()
-        if op.lower() == 'q':
-            return None, 0  # oyunu kapat
+    while True:
+        menu()
+        choice = input("Seçiminizi girin (1-6): ")
 
-        if op not in remaining:
-            print("Geçersiz işlem.")
-            return False, 0
+        if choice == "1":
+            name = input("Kitap Adı: ")
+            author = input("Yazar: ")
+            year = input("Yayın Yılı: ")
+            library.add_book(name, author, year)
 
-        try:
-            a = float(input("Birinci sayı: ").replace(",", "."))
-            b = float(input("İkinci sayı: ").replace(",", "."))
-        except ValueError:
-            print("Geçersiz sayı!")
-            self.ops_used.add(op)
-            return False, 1
+        elif choice == "2":
+            name = input("Silinecek Kitap Adı: ")
+            library.remove_book(name)
 
-        if op == '/' and b == 0:
-            print("Sıfıra bölme hatası!")
-            self.ops_used.add(op)
-            return False, 1
+        elif choice == "3":
+            name = input("Aranacak Kitap Adı: ")
+            library.search_by_name(name)
 
-        correct = eval(f"{a}{op}{b}") #doğrıu cevabı tutan satır
+        elif choice == "4":
+            author = input("Aranacak Yazar Adı: ")
+            library.search_by_author(author)
 
-        try:
-            ans = float(input("Sonucu yazın: ").replace(",", "."))
-        except ValueError:
-            print("Geçersiz sayı!")
-            self.ops_used.add(op)
-            return False, 1
+        elif choice == "5":
+            library.list_books()
 
-        self.ops_used.add(op)
+        elif choice == "6":
+            print("Programdan çıkılıyor...")
+            break
 
-        if abs(ans - correct) <= TOLERANCE:
-            print("Doğru! Bonus kazandınız.")
-            return True, 0
         else:
-            print(f"Yanlış! Doğru sonuç {correct}")
-            return False, 1
-
-        #oyunun genel kodları
-class AdamAsmaca:
-    def __init__(self):
-        self.word_manager = Kelimeler()
-        self.Hesaplama = Hesap_Makinesi()
-        self.guessed = set()
-        self.wrong = 0
-        self.bonus = 0
-        self.revealed_category = False
-        self.MAX_ERRORS = len(Adam_Asmaca_Aşamalar) - 1
-        # harf tahmini veya diğer seçeneklerin seçimi
-    def ask_letter(self):
-        while True:
-            val = input("Harf tahmin et (veya 'Hesaplama', 'İpucu', 'Çıkış'): ").lower().strip()
-            if val in ("hesaplama", "ipucu", "çıkış"):
-                return val
-            if len(val) != 1 or not val.isalpha():
-                print("Lütfen tek harf gir.")
-                continue
-            if val in self.guessed:
-                print("Bu harfi zaten tahmin ettin.")
-                continue
-            return val
-
-    def play(self):
-        print("=== Adam Asmaca ===")
-
-        while True:
-            print(Adam_Asmaca_Aşamalar[min(self.wrong, self.MAX_ERRORS)])
-            masked = self.word_manager.mask(self.guessed)
-
-            print("Kelime:", " ".join(masked))
-            print("Tahminler:", " ".join(sorted(self.guessed)) or "(yok)")
-            print("Kalan hata:", self.MAX_ERRORS - self.wrong)
-            print("Bonus:", self.bonus)
-            if self.revealed_category:
-                print("Kategori:", self.word_manager.Kategoriler)
-            print("-" * 30)
-
-            if "_" not in masked:
-                print("Tebrikler! Kelime:", self.word_manager.word)
-                break
-
-            if self.wrong >= self.MAX_ERRORS:
-                print("Kaybettiniz! Kelime:", self.word_manager.word)
-                break
-
-            choice = self.ask_letter()
-            #hesap makinesi işlemi ve ek bonus kazanımı
-            if choice == "hesaplama":
-                result = self.Hesaplama.perform()
-                if result is None: 
-                    print("Oyundan çıkış yapıldı.")
-                    break
-                correct, penalty = result
-                if correct:
-                    self.bonus += 1
-                else:
-                    self.wrong += penalty
-                continue
-            #ipucunun kullanımı ve bonusların harcanması
-            if choice == "ipucu":
-                if self.bonus > 0:
-                    self.bonus -= 1
-                    self.revealed_category = True
-                    print("Kategori açıldı!")
-                else:
-                    print("Bonus yok!")
-                continue
-
-            if choice == "çıkış": #istendiğinde çıkış yapılması için 
-                print("Oyundan çıkılıyor.")
-                break
-
-            # Harf tahminleri burada işlenir
-            self.guessed.add(choice)
-            if choice in self.word_manager.word:
-                print(f"Doğru! '{choice}' var.")
-            else:
-                print(f"Yanlış! '{choice}' yok.")
-                self.wrong += 1
-
-        print("Oyun bitti!")
+            print("Geçersiz seçim! Lütfen 1-6 arası bir değer girin.")
 
 
 if __name__ == "__main__":
-    game = AdamAsmaca()
-    game.play()
+    main()
